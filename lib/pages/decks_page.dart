@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(Decks());
+  runApp(DecksPage());
 }
 
-class Decks extends StatelessWidget {
-  const Decks({Key? key}) : super(key: key);
+class DecksPage extends StatefulWidget {
+  const DecksPage({Key? key}) : super(key: key);
 
+  @override
+  State<DecksPage> createState() => _DecksPageState();
+}
+
+class _DecksPageState extends State<DecksPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,7 +48,7 @@ class Decks extends StatelessWidget {
           child: Container(
             height: 300,
             width: 300,
-            color: Colors.red,
+            color: Colors.blueGrey,
             child: Text("hello"),
           ),
         ),
