@@ -26,7 +26,7 @@ class _DecksPageState extends State<DecksPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text('Anki Decks'),
+        title: const Text('Decks'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
@@ -57,6 +57,45 @@ class _DecksPageState extends State<DecksPage> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          //padding: EdgeInsets.zero,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Decks'),
+              onTap: () {
+                // handle the tap
+                Navigator.pop(context); // close the drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.book),
+              title: const Text('Card Browser'),
+              onTap: () {
+                // handle the tap
+                Navigator.pop(context); // close the drawer
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/cards',
+                ); // navigate to cards page
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                // handle the tap
+                Navigator.pop(context); // close the drawer
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/settings',
+                ); // navigate to settings
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: ExpandableFab(
         distance: 112,
