@@ -22,3 +22,14 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+subprojects {
+    // Wait for the Android Library plugin to be applied, avoiding lifecycle crashes
+    pluginManager.withPlugin("com.android.library") {
+        extensions.configure<com.android.build.gradle.LibraryExtension>("android") {
+            if (namespace.isNullOrEmpty()) {
+                namespace = project.group.toString()
+            }
+        }
+    }
+}
