@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:temp_app/models/collection.dart';
 import 'package:temp_app/pages/cards_page.dart';
+import 'package:temp_app/pages/card_editor_page.dart';
 import 'package:temp_app/pages/settings_page.dart';
 import 'package:temp_app/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +35,7 @@ class App extends StatelessWidget {
         '/decks': (context) => const DecksPage(),
         '/cards': (context) => const CardsPage(),
         '/settings': (context) => const SettingsPage(),
+        '/card-editor': (context) => const CardEditorPage(),
       },
     );
   }

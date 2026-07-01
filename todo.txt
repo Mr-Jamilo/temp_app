@@ -1,1 +1,5 @@
 x 2026-07-01 2026-07-01 crud decks
+(A) crud cards
+(B) 2026-07-01 card browser
+2026-07-01 make it look nice
+(A) 2026-07-01 flashcarding

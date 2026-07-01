@@ -93,14 +93,6 @@ class _DecksPageState extends State<DecksPage> {
     context.read<Collection>().fetchDecks();
   }
 
-  void createCard() {}
-
-  void _showAction(BuildContext context, int index) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Action $index')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final database = context.watch<Collection>();
@@ -232,7 +224,7 @@ class _DecksPageState extends State<DecksPage> {
         distance: 112,
         children: [
           ActionButton(
-            onPressed: () => _showAction(context, 0),
+            onPressed: () => Navigator.pushNamed(context, '/card-editor'),
             icon: const Icon(Icons.post_add),
           ),
           ActionButton(
