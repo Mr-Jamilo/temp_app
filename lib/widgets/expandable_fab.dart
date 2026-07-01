@@ -82,7 +82,7 @@ class _ExpandableFabState extends State<ExpandableFab>
       children.add(
         _ExpandingActionButton(
           directionInDegrees: angleInDegrees,
-          maxDistance: widget.distance,
+          maxDistance: (widget.distance * (i + 1)) * 0.7,
           progress: _expandAnimation,
           child: widget.children[i],
         ),
@@ -100,14 +100,12 @@ class _ExpandableFabState extends State<ExpandableFab>
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           elevation: 4.0,
+          color: Theme.of(context).colorScheme.primary,
           child: InkWell(
             onTap: _toggle,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.close,
-                color: Theme.of(context).colorScheme.surface,
-              ),
+              child: Icon(Icons.close),
             ),
           ),
         ),
@@ -132,8 +130,9 @@ class _ExpandableFabState extends State<ExpandableFab>
           curve: const Interval(0.25, 1.0, curve: Curves.easeInOut),
           duration: const Duration(milliseconds: 250),
           child: FloatingActionButton(
+            shape: const CircleBorder(),
             onPressed: _toggle,
-            backgroundColor: Theme.of(context).colorScheme.surface,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: const Icon(Icons.add),
           ),
         ),
@@ -153,13 +152,9 @@ class ActionButton extends StatelessWidget {
     return Material(
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
-      color: Theme.of(context).colorScheme.secondary,
+      color: Theme.of(context).colorScheme.primary,
       elevation: 4.0,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon,
-        color: Theme.of(context).primaryColor,
-      ),
+      child: IconButton(onPressed: onPressed, icon: icon),
     );
   }
 }
@@ -187,9 +182,11 @@ class _ExpandingActionButton extends StatelessWidget {
           directionInDegrees * (math.pi / 180.0),
           progress.value * maxDistance,
         );
+        final verticalDistance = maxDistance * progress.value;
+
         return Positioned(
-          right: 4.0 + offset.dx,
-          bottom: 4.0 + offset.dy,
+          right: 4.0,
+          bottom: 4.0 + verticalDistance,
           child: Transform.rotate(
             angle: (1.0 - progress.value) * math.pi / 2,
             child: child!,

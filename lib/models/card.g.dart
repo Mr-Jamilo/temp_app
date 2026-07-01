@@ -34,7 +34,15 @@ const CardSchema = CollectionSchema(
   deserializeProp: _cardDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {},
+  links: {
+    r'deck': LinkSchema(
+      id: -3734896783927191152,
+      name: r'deck',
+      target: r'Deck',
+      single: true,
+      linkName: r'cards',
+    )
+  },
   embeddedSchemas: {},
   getId: _cardGetId,
   getLinks: _cardGetLinks,
@@ -98,11 +106,12 @@ Id _cardGetId(Card object) {
 }
 
 List<IsarLinkBase<dynamic>> _cardGetLinks(Card object) {
-  return [];
+  return [object.deck];
 }
 
 void _cardAttach(IsarCollection<dynamic> col, Id id, Card object) {
   object.id = id;
+  object.deck.attach(col, col.isar.collection<Deck>(), r'deck', id);
 }
 
 extension CardQueryWhereSort on QueryBuilder<Card, Card, QWhere> {
@@ -492,7 +501,19 @@ extension CardQueryFilter on QueryBuilder<Card, Card, QFilterCondition> {
 
 extension CardQueryObject on QueryBuilder<Card, Card, QFilterCondition> {}
 
-extension CardQueryLinks on QueryBuilder<Card, Card, QFilterCondition> {}
+extension CardQueryLinks on QueryBuilder<Card, Card, QFilterCondition> {
+  QueryBuilder<Card, Card, QAfterFilterCondition> deck(FilterQuery<Deck> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'deck');
+    });
+  }
+
+  QueryBuilder<Card, Card, QAfterFilterCondition> deckIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'deck', 0, true, 0, true);
+    });
+  }
+}
 
 extension CardQuerySortBy on QueryBuilder<Card, Card, QSortBy> {
   QueryBuilder<Card, Card, QAfterSortBy> sortByBack() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:temp_app/models/deck.dart';
+import 'package:temp_app/models/collection.dart';
 import 'package:temp_app/pages/cards_page.dart';
 import 'package:temp_app/pages/settings_page.dart';
 import 'package:temp_app/theme/theme_provider.dart';
@@ -8,12 +8,12 @@ import 'pages/decks_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Deck.init();
+  await Collection.init();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => Deck()),
+        ChangeNotifierProvider(create: (context) => Collection()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const App(),

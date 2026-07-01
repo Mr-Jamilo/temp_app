@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:temp_app/models/collection.dart';
 import 'package:temp_app/theme/theme_provider.dart';
 import 'package:temp_app/widgets/expandable_fab.dart';
+
+import '../models/deck.dart';
 
 void main() {
   runApp(DecksPage());
@@ -15,6 +18,83 @@ class DecksPage extends StatefulWidget {
 }
 
 class _DecksPageState extends State<DecksPage> {
+  final textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDecks();
+  }
+
+  void createDeck() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Create Deck'),
+          content: TextField(controller: textController),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Create'),
+              onPressed: () {
+                context.read<Collection>().createDeck(textController.text);
+                textController.clear();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void renameDeck(int deckId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Rename Deck'),
+          content: TextField(controller: textController),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Rename'),
+              onPressed: () {
+                context.read<Collection>().updateDeckName(
+                  deckId,
+                  textController.text,
+                );
+                textController.clear();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteDeck(int deckId) {
+    context.read<Collection>().deleteDeck(deckId);
+  }
+
+  void fetchDecks() {
+    context.read<Collection>().fetchDecks();
+  }
+
+  void createCard() {}
+
   void _showAction(BuildContext context, int index) {
     ScaffoldMessenger.of(
       context,
@@ -23,9 +103,11 @@ class _DecksPageState extends State<DecksPage> {
 
   @override
   Widget build(BuildContext context) {
+    final database = context.watch<Collection>();
+    List<Deck> currentDecks = database.currentDecks;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text('Decks'),
         actions: <Widget>[
           IconButton(
@@ -97,16 +179,65 @@ class _DecksPageState extends State<DecksPage> {
           ],
         ),
       ),
+      body: ListView.builder(
+        itemCount: currentDecks.length,
+        itemBuilder: (context, index) {
+          final deck = currentDecks[index];
+          return ListTile(
+            title: Text(
+              deck.name,
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              // Navigate to the deck's cards page
+              Navigator.pushNamed(context, '/deck/${deck.id}');
+            },
+            onLongPress: () {
+              // Show options to edit or delete the deck
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(deck.name),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.edit),
+                          title: const Text('Rename'),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            renameDeck(deck.id);
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.delete),
+                          title: const Text('Delete'),
+                          onTap: () {
+                            // Handle delete
+                            deleteDeck(deck.id);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: ExpandableFab(
         distance: 112,
         children: [
           ActionButton(
             onPressed: () => _showAction(context, 0),
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.post_add),
           ),
           ActionButton(
-            onPressed: () => _showAction(context, 1),
-            icon: const Icon(Icons.add),
+            onPressed: () => createDeck(),
+            icon: const Icon(Icons.library_add),
           ),
         ],
       ),
