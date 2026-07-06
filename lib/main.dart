@@ -23,7 +23,7 @@ void main() async {
 }
 
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,11 @@ class App extends StatelessWidget {
         '/decks': (context) => const DecksPage(),
         '/cards': (context) => const CardsPage(),
         '/settings': (context) => const SettingsPage(),
-        '/card-editor': (context) => const CardEditorPage(),
+        '/card-editor': (context) {
+          final passedCardID =
+              ModalRoute.of(context)?.settings.arguments as int? ?? -1;
+          return CardEditorPage(cardID: passedCardID);
+        },
       },
     );
   }

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:temp_app/models/collection.dart';
 import 'package:temp_app/theme/theme_provider.dart';
 import 'package:temp_app/widgets/expandable_fab.dart';
-
 import '../models/deck.dart';
 
 void main() {
@@ -224,7 +223,8 @@ class _DecksPageState extends State<DecksPage> {
         distance: 112,
         children: [
           ActionButton(
-            onPressed: () => Navigator.pushNamed(context, '/card-editor'),
+            onPressed: () =>
+                Navigator.pushNamed(context, '/card-editor', arguments: -1),
             icon: const Icon(Icons.post_add),
           ),
           ActionButton(
