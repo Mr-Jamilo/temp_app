@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +25,9 @@ class _CardEditorPageState extends State<CardEditorPage> {
   late FleatherController currentController;
   final FocusNode frontFocusNode = FocusNode();
   final FocusNode backFocusNode = FocusNode();
+
+  final _formKey = GlobalKey<FormState>();
+  int? dropdownValue;
 
   @override
   void initState() {
@@ -54,8 +59,26 @@ class _CardEditorPageState extends State<CardEditorPage> {
     super.dispose();
   }
 
-  void submitCard() {
+  void submitCard() async {
     // Implement card creation logic here
+    final frontContent = jsonEncode(frontController.document);
+    final backContent = jsonEncode(backController.document);
+
+    if (widget.cardID == -1) {
+      // Create a new card
+      context.read<Collection>().createCard(
+        dropdownValue!,
+        frontContent,
+        backContent,
+      );
+    } else {
+      // Update existing card
+      context.read<Collection>().updateCard(
+        widget.cardID,
+        frontContent,
+        backContent,
+      );
+    }
   }
 
   void fetchDecks() {
@@ -66,7 +89,6 @@ class _CardEditorPageState extends State<CardEditorPage> {
   Widget build(BuildContext context) {
     final database = context.watch<Collection>();
     List<Deck> currentDecks = database.currentDecks;
-    int dropdownValue = currentDecks.isNotEmpty ? currentDecks.first.id : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +104,10 @@ class _CardEditorPageState extends State<CardEditorPage> {
             icon: const Icon(Icons.done),
             onPressed: () {
               // Save the card
-              Navigator.of(context).pop();
+              if (_formKey.currentState!.validate()) {
+                submitCard();
+                Navigator.of(context).pop();
+              }
             },
           ),
         ],
@@ -90,13 +115,14 @@ class _CardEditorPageState extends State<CardEditorPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
-              DropdownMenu(
+              DropdownMenuFormField(
                 label: const Text('Select A Deck'),
                 expandedInsets: EdgeInsets.zero,
                 enableSearch: true,
-                initialSelection: 0,
+                initialSelection: -1,
                 dropdownMenuEntries: currentDecks
                     .map(
                       (deck) =>
@@ -107,6 +133,12 @@ class _CardEditorPageState extends State<CardEditorPage> {
                   setState(() {
                     dropdownValue = deckID!;
                   });
+                },
+                validator: (value) {
+                  if (value == -1) {
+                    return 'Please select a deck';
+                  }
+                  return null;
                 },
               ),
               FleatherToolbar.basic(controller: currentController),
