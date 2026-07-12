@@ -45,20 +45,31 @@ class Collection extends ChangeNotifier {
   Future<void> createCard(int deckId, String front, String back) async {
     final newCard = Card(front: front, back: back);
     await isar.writeTxn(() async {
-      final deck = await isar.decks.get(deckId);
-      if (deck != null) {
-        await isar.cards.put(newCard);
-        deck.cards.add(newCard);
-        await isar.decks.put(deck);
+      await isar.cards.put(newCard);
+      final selectedDeck = await isar.decks.get(deckId);
+
+      if (selectedDeck != null) {
+        selectedDeck.cards.add(newCard);
+        await selectedDeck.cards.save();
       }
     });
-    fetchCards(deckId);
+    fetchAllCards();
   }
 
-  Future<void> fetchCards(int deckId) async {
+  Future<void> fetchAllCards() async {
+    final fetchedCards = await isar.cards.where().findAll();
+    await Future.wait(fetchedCards.map((card) => card.deck.load()));
+
+    currentCards.clear();
+    currentCards.addAll(fetchedCards);
+    notifyListeners();
+  }
+
+  Future<void> fetchCardsFromDeck(int deckId) async {
     final deck = await isar.decks.get(deckId);
     if (deck != null) {
       final fetchedCards = deck.cards.toList();
+      await Future.wait(fetchedCards.map((card) => card.deck.load()));
       currentCards.clear();
       currentCards.addAll(fetchedCards);
       notifyListeners();
@@ -71,30 +82,12 @@ class Collection extends ChangeNotifier {
       existingCard.front = newFront;
       existingCard.back = newBack;
       await isar.writeTxn(() => isar.cards.put(existingCard));
-      // Assuming you have a way to get the deckId for the card
-      // You might need to adjust this part based on your data model
-      final decks = await isar.decks
-          .where()
-          .filter()
-          .cards((q) => q.idEqualTo(cardId))
-          .findAll();
-      if (decks.isNotEmpty) {
-        fetchCards(decks.first.id);
-      }
+      await fetchAllCards();
     }
   }
 
   Future<void> deleteCard(int cardId) async {
     await isar.writeTxn(() => isar.cards.delete(cardId));
-    // Assuming you have a way to get the deckId for the card
-    // You might need to adjust this part based on your data model
-    final decks = await isar.decks
-        .where()
-        .filter()
-        .cards((q) => q.idEqualTo(cardId))
-        .findAll();
-    if (decks.isNotEmpty) {
-      fetchCards(decks.first.id);
-    }
+    await fetchAllCards();
   }
 }
