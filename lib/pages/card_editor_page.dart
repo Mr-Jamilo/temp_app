@@ -136,6 +136,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
           child: Column(
             children: [
               DropdownMenuFormField(
+                menuHeight: 280,
                 label: const Text('Select A Deck'),
                 expandedInsets: EdgeInsets.zero,
                 enableSearch: true,
