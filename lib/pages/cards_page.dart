@@ -17,6 +17,7 @@ class CardsPage extends StatefulWidget {
 
 class _CardsPageState extends State<CardsPage> {
   Set<int> selectedCardIds = {};
+  Set<int> selectedDeckIds = {};
   bool selectMode = false;
 
   @override
@@ -27,6 +28,66 @@ class _CardsPageState extends State<CardsPage> {
 
   void fetchCards() {
     context.read<Collection>().fetchAllCards();
+  }
+
+  void filterCards(database) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Filter Cards'),
+              content: SingleChildScrollView(
+                child: DataTable(
+                  showCheckboxColumn: true,
+                  columns: const [
+                    DataColumn(label: Text('Deck')),
+                    DataColumn(label: Text('Count')),
+                  ],
+                  rows: database.currentDecks.map<DataRow>((deck) {
+                    final isSelected = selectedDeckIds.contains(deck.id);
+                    return DataRow(
+                      selected: isSelected,
+                      cells: [
+                        DataCell(Text(deck.name)),
+                        DataCell(Text(deck.cards.length.toString())),
+                      ],
+                      onSelectChanged: (bool? value) {
+                        setState(() {
+                          if (isSelected) {
+                            selectedDeckIds.remove(deck.id);
+                          } else {
+                            selectedDeckIds.add(deck.id);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('Filter'),
+                  onPressed: () {
+                    context.read<Collection>().fetchCardsFromDeckList(
+                      selectedDeckIds.toList(),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   void deleteSelectedCards() {
@@ -78,7 +139,7 @@ class _CardsPageState extends State<CardsPage> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.filter_list),
-                  onPressed: () {},
+                  onPressed: () => filterCards(database),
                 ),
               ],
             ),
@@ -172,7 +233,13 @@ class _CardsPageState extends State<CardsPage> {
                       selectedCardIds.add(card.id);
                     }
                   });
-                } else {}
+                } else {
+                  Navigator.pushNamed(
+                    context,
+                    '/card-editor',
+                    arguments: card.id,
+                  );
+                }
               },
             );
           }).toList(),

@@ -38,6 +38,10 @@ class _CardEditorPageState extends State<CardEditorPage> {
     frontFocusNode.addListener(_updateCurrentController);
     backFocusNode.addListener(_updateCurrentController);
     fetchDecks();
+
+    if (widget.cardID != -1) {
+      fetchCard(widget.cardID);
+    }
   }
 
   void _updateCurrentController() {
@@ -83,6 +87,19 @@ class _CardEditorPageState extends State<CardEditorPage> {
 
   void fetchDecks() {
     context.read<Collection>().fetchDecks();
+  }
+
+  void fetchCard(int cardID) {
+    final card = context.read<Collection>().fetchCard(cardID);
+    if (card != null) {
+      frontController = FleatherController(
+        document: ParchmentDocument.fromJson(jsonDecode(card.front)),
+      );
+      backController = FleatherController(
+        document: ParchmentDocument.fromJson(jsonDecode(card.back)),
+      );
+      dropdownValue = card.deck.value?.id;
+    }
   }
 
   @override

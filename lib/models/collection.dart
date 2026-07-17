@@ -56,6 +56,14 @@ class Collection extends ChangeNotifier {
     fetchAllCards();
   }
 
+  Card? fetchCard(int cardId) {
+    try {
+      return currentCards.firstWhere((card) => card.id == cardId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> fetchAllCards() async {
     final fetchedCards = await isar.cards.where().findAll();
     await Future.wait(fetchedCards.map((card) => card.deck.load()));
@@ -74,6 +82,18 @@ class Collection extends ChangeNotifier {
       currentCards.addAll(fetchedCards);
       notifyListeners();
     }
+  }
+
+  Future<void> fetchCardsFromDeckList(List<int> deckList) async {
+    final fetchedCards = await isar.cards
+        .filter()
+        .anyOf(deckList, (q, int deckId) => q.deck((q) => q.idEqualTo(deckId)))
+        .findAll();
+    await Future.wait(fetchedCards.map((card) => card.deck.load()));
+
+    currentCards.clear();
+    currentCards.addAll(fetchedCards);
+    notifyListeners();
   }
 
   Future<void> updateCard(int cardId, String newFront, String newBack) async {
