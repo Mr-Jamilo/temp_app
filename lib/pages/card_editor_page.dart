@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:fleather/fleather.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card;
 import 'package:provider/provider.dart';
 
 import '../models/collection.dart';
 import '../models/deck.dart';
+import '../models/card.dart';
 
 void main() {
   runApp(const CardEditorPage(cardID: -1));
@@ -25,6 +26,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
   late FleatherController currentController;
   final FocusNode frontFocusNode = FocusNode();
   final FocusNode backFocusNode = FocusNode();
+  late Card card;
 
   final _formKey = GlobalKey<FormState>();
   int? dropdownValue;
@@ -90,16 +92,14 @@ class _CardEditorPageState extends State<CardEditorPage> {
   }
 
   void fetchCard(int cardID) {
-    final card = context.read<Collection>().fetchCard(cardID);
-    if (card != null) {
-      frontController = FleatherController(
-        document: ParchmentDocument.fromJson(jsonDecode(card.front)),
-      );
-      backController = FleatherController(
-        document: ParchmentDocument.fromJson(jsonDecode(card.back)),
-      );
-      dropdownValue = card.deck.value?.id;
-    }
+    card = context.read<Collection>().fetchCard(cardID)!;
+    frontController = FleatherController(
+      document: ParchmentDocument.fromJson(jsonDecode(card.front)),
+    );
+    backController = FleatherController(
+      document: ParchmentDocument.fromJson(jsonDecode(card.back)),
+    );
+    dropdownValue = card.deck.value?.id;
   }
 
   @override
@@ -140,7 +140,9 @@ class _CardEditorPageState extends State<CardEditorPage> {
                 label: const Text('Select A Deck'),
                 expandedInsets: EdgeInsets.zero,
                 enableSearch: true,
-                initialSelection: -1,
+                initialSelection: widget.cardID == -1
+                    ? -1
+                    : card.deck.value?.id,
                 dropdownMenuEntries: currentDecks
                     .map(
                       (deck) =>
