@@ -96,12 +96,21 @@ class Collection extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateCard(int cardId, String newFront, String newBack) async {
+  Future<void> updateCard(
+    int cardId,
+    String newFront,
+    String newBack,
+    int newDeck,
+  ) async {
     final existingCard = await isar.cards.get(cardId);
     if (existingCard != null) {
       existingCard.front = newFront;
       existingCard.back = newBack;
-      await isar.writeTxn(() => isar.cards.put(existingCard));
+      existingCard.deck.value = await isar.decks.get(newDeck);
+      await isar.writeTxn(() async {
+        await isar.cards.put(existingCard);
+        await existingCard.deck.save();
+      });
       await fetchAllCards();
     }
   }

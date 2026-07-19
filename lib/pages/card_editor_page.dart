@@ -83,6 +83,7 @@ class _CardEditorPageState extends State<CardEditorPage> {
         widget.cardID,
         frontContent,
         backContent,
+        dropdownValue!,
       );
     }
   }
